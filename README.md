@@ -145,6 +145,7 @@ service_now:
   # Mandatory. A user with permissions to read and update ServiceNow incidents.
   user_name: "<user>"
   password: "<password>"
+  table_name: "<table_name>"
 
 workflow:
   # Mandatory. Name of an existing ServiceNow incident field that will be used to hold the hashed key that uniquely reference an alert group in the incident management workflow.
