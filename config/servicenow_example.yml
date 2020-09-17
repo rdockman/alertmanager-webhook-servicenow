@@ -2,6 +2,7 @@ service_now:
   instance_name: "CHANGE_ME"
   user_name: "CHANGE_ME"
   password: "CHANGE_ME"
+  table_name: "incident"
 
 workflow:
   incident_group_key_field: "CHANGE_ME"

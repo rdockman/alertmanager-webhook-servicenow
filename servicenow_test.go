@@ -90,7 +90,7 @@ func TestCreateIncident_OK(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	incident, err := snClient.CreateIncident(basicIncidentParam)
+	incident, err := snClient.CreateIncident("incident", basicIncidentParam)
 
 	if err != nil {
 		t.Errorf("Error occured on CreateIncident: %s", err)
@@ -124,7 +124,7 @@ func TestCreateIncident_OK_No_AG(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	incident, err := snClient.CreateIncident(basicIncidentParam)
+	incident, err := snClient.CreateIncident("incident", basicIncidentParam)
 
 	if err != nil {
 		t.Errorf("Error occured on CreateIncident: %s", err)
@@ -151,7 +151,7 @@ func TestCreateIncident_IncidentMarshallError(t *testing.T) {
 	}
 
 	// Cause an error by using invalid incident
-	_, err = snClient.CreateIncident(wrongIncidentParam)
+	_, err = snClient.CreateIncident("incident", wrongIncidentParam)
 
 	if err == nil {
 		t.Errorf("Expected an error, got none")
@@ -167,7 +167,7 @@ func TestCreateIncident_CreateRequestError(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	_, err = snClient.CreateIncident(basicIncidentParam)
+	_, err = snClient.CreateIncident("incident", basicIncidentParam)
 
 	if err == nil {
 		t.Errorf("Expected an error, got none")
@@ -187,7 +187,7 @@ func TestCreateIncident_DoRequestError(t *testing.T) {
 
 	// Cause an error by closing the server
 	ts.Close()
-	_, err = snClient.CreateIncident(basicIncidentParam)
+	_, err = snClient.CreateIncident("incident", basicIncidentParam)
 
 	if err == nil {
 		t.Errorf("Expected an error, got none")
@@ -209,7 +209,7 @@ func TestCreateIncident_InternalServerError(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	_, err = snClient.CreateIncident(basicIncidentParam)
+	_, err = snClient.CreateIncident("incident", basicIncidentParam)
 
 	if err == nil {
 		t.Errorf("Expected an error, got none")
@@ -234,7 +234,7 @@ func TestGetIncidents_OK(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	incidents, err := snClient.GetIncidents(nil)
+	incidents, err := snClient.GetIncidents("incident", nil)
 	if err != nil {
 		t.Errorf("Error occured on CreateIncident: %s", err)
 	}
@@ -256,7 +256,7 @@ func TestGetIncidents_CreateRequestError(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	_, err = snClient.GetIncidents(nil)
+	_, err = snClient.GetIncidents("incident", nil)
 
 	if err == nil {
 		t.Errorf("Expected an error, got none")
@@ -283,7 +283,7 @@ func TestUpdateIncident_OK(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	incident, err := snClient.UpdateIncident(basicIncidentParam, "my_sys_id")
+	incident, err := snClient.UpdateIncident("incident", basicIncidentParam, "my_sys_id")
 
 	if err != nil {
 		t.Errorf("Error occured on UpdateIncident: %s", err)
@@ -306,7 +306,7 @@ func TestUpdateIncident_CreateRequestError(t *testing.T) {
 		t.Errorf("Error occured on NewServiceNowClient: %s", err)
 	}
 
-	_, err = snClient.UpdateIncident(basicIncidentParam, "my_sys_id")
+	_, err = snClient.UpdateIncident("incident", basicIncidentParam, "my_sys_id")
 
 	if err == nil {
 		t.Errorf("Expected an error, got none")
