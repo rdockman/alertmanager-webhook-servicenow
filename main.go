@@ -98,6 +98,7 @@ type ServiceNowConfig struct {
 	InstanceName string `yaml:"instance_name"`
 	UserName     string `yaml:"user_name"`
 	Password     string `yaml:"password"`
+	TableName	 string `yaml:"table_name"`
 }
 
 // WorkflowConfig - Incident workflow configuration
@@ -304,7 +305,7 @@ func onAlertGroup(data template.Data) error {
 		config.Workflow.IncidentGroupKeyField: getGroupKey(data),
 	}
 
-	existingIncidents, err := serviceNow.GetIncidents(getParams)
+	existingIncidents, err := serviceNow.GetIncidents(config.ServiceNow.TableName,getParams)
 	if err != nil {
 		serviceNowError.Inc()
 		return err
@@ -344,13 +345,13 @@ func onFiringGroup(data template.Data, updatableIncident Incident) error {
 
 	if updatableIncident == nil {
 		log.Infof("Found no updatable incident for firing alert group key: %s", getGroupKey(data))
-		if _, err := serviceNow.CreateIncident(incidentCreateParam); err != nil {
+		if _, err := serviceNow.CreateIncident(config.ServiceNow.TableName, incidentCreateParam); err != nil {
 			serviceNowError.Inc()
 			return err
 		}
 	} else {
 		log.Infof("Found updatable incident (%s), with state %s, for firing alert group key: %s", updatableIncident.GetNumber(), updatableIncident.GetState(), getGroupKey(data))
-		if _, err := serviceNow.UpdateIncident(incidentUpdateParam, updatableIncident.GetSysID()); err != nil {
+		if _, err := serviceNow.UpdateIncident(config.ServiceNow.TableName, incidentUpdateParam, updatableIncident.GetSysID()); err != nil {
 			serviceNowError.Inc()
 			return err
 		}
@@ -370,7 +371,7 @@ func onResolvedGroup(data template.Data, updatableIncident Incident) error {
 		log.Infof("Found no updatable incident for resolved alert group key: %s. No incident will be created/updated.", getGroupKey(data))
 	} else {
 		log.Infof("Found updatable incident (%s), with state %s, for resolved alert group key: %s", updatableIncident.GetNumber(), updatableIncident.GetState(), getGroupKey(data))
-		if _, err := serviceNow.UpdateIncident(incidentUpdateParam, updatableIncident.GetSysID()); err != nil {
+		if _, err := serviceNow.UpdateIncident(config.ServiceNow.TableName, incidentUpdateParam, updatableIncident.GetSysID()); err != nil {
 			serviceNowError.Inc()
 			return err
 		}

@@ -62,9 +62,9 @@ func (ir IncidentsResponse) GetResults() []Incident {
 
 // ServiceNow interface
 type ServiceNow interface {
-	CreateIncident(incidentParam Incident) (Incident, error)
-	GetIncidents(params map[string]string) ([]Incident, error)
-	UpdateIncident(incidentParam Incident, sysID string) (Incident, error)
+	CreateIncident(tableName string, incidentParam Incident) (Incident, error)
+	GetIncidents(tableName string, params map[string]string) ([]Incident, error)
+	UpdateIncident(tableName string, incidentParam Incident, sysID string) (Incident, error)
 }
 
 // ServiceNowClient is the interface to a ServiceNow instance
@@ -176,7 +176,7 @@ func (snClient *ServiceNowClient) doRequest(req *http.Request) ([]byte, error) {
 }
 
 // CreateIncident will create an incident in ServiceNow from a given Incident, and return the created incident
-func (snClient *ServiceNowClient) CreateIncident(incidentParam Incident) (Incident, error) {
+func (snClient *ServiceNowClient) CreateIncident(tableName string, incidentParam Incident) (Incident, error) {
 	log.Info("Create a ServiceNow incident")
 
 	postBody, err := json.Marshal(incidentParam)
@@ -185,7 +185,7 @@ func (snClient *ServiceNowClient) CreateIncident(incidentParam Incident) (Incide
 		return nil, err
 	}
 
-	response, err := snClient.create("incident", postBody)
+	response, err := snClient.create(tableName, postBody)
 	if err != nil {
 		log.Errorf("Error while creating the incident. %s", err)
 		return nil, err
@@ -205,9 +205,9 @@ func (snClient *ServiceNowClient) CreateIncident(incidentParam Incident) (Incide
 }
 
 // GetIncidents will retrieve an incident from ServiceNow
-func (snClient *ServiceNowClient) GetIncidents(params map[string]string) ([]Incident, error) {
+func (snClient *ServiceNowClient) GetIncidents(tableName string, params map[string]string) ([]Incident, error) {
 	log.Infof("Get ServiceNow incidents with params: %v", params)
-	response, err := snClient.get("incident", params)
+	response, err := snClient.get(tableName, params)
 
 	if err != nil {
 		log.Errorf("Error while getting the incident. %s", err)
@@ -225,7 +225,7 @@ func (snClient *ServiceNowClient) GetIncidents(params map[string]string) ([]Inci
 }
 
 // UpdateIncident will update an incident in ServiceNow from a given Incident, and return the updated incident
-func (snClient *ServiceNowClient) UpdateIncident(incidentParam Incident, sysID string) (Incident, error) {
+func (snClient *ServiceNowClient) UpdateIncident(tableName string, incidentParam Incident, sysID string) (Incident, error) {
 	log.Infof("Update %v field(s) of ServiceNow incident with id : %s", len(incidentParam), sysID)
 
 	postBody, err := json.Marshal(incidentParam)
@@ -234,7 +234,7 @@ func (snClient *ServiceNowClient) UpdateIncident(incidentParam Incident, sysID s
 		return nil, err
 	}
 
-	response, err := snClient.update("incident", postBody, sysID)
+	response, err := snClient.update(tableName, postBody, sysID)
 	if err != nil {
 		log.Errorf("Error while updating the incident. %s", err)
 		return nil, err
