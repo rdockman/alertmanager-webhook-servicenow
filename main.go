@@ -114,6 +114,11 @@ type JSONResponse struct {
 	Message string
 }
 
+type TemplateData struct {
+	UpdatableIncident Incident
+	template.Data
+}
+
 func init() {
 	prometheus.MustRegister(version.NewCollector("alertmanager_webhook_servicenow"))
 }
@@ -336,7 +341,7 @@ func onAlertGroup(data template.Data) error {
 }
 
 func onFiringGroup(data template.Data, updatableIncident Incident) error {
-	incidentCreateParam, err := alertGroupToIncident(data)
+	incidentCreateParam, err := alertGroupToIncident(data, updatableIncident)
 	if err != nil {
 		return err
 	}
@@ -360,7 +365,7 @@ func onFiringGroup(data template.Data, updatableIncident Incident) error {
 }
 
 func onResolvedGroup(data template.Data, updatableIncident Incident) error {
-	incidentCreateParam, err := alertGroupToIncident(data)
+	incidentCreateParam, err := alertGroupToIncident(data, updatableIncident)
 	if err != nil {
 		return err
 	}
@@ -379,7 +384,7 @@ func onResolvedGroup(data template.Data, updatableIncident Incident) error {
 	return nil
 }
 
-func alertGroupToIncident(data template.Data) (Incident, error) {
+func alertGroupToIncident(data template.Data, updatableIncident Incident) (Incident, error) {
 
 	incident := Incident{
 		"caller_id":                           config.ServiceNow.UserName,
@@ -390,7 +395,7 @@ func alertGroupToIncident(data template.Data) (Incident, error) {
 		incident[k] = v
 	}
 
-	applyIncidentTemplate(incident, data)
+	applyIncidentTemplate(incident, data, updatableIncident)
 	err := validateIncident(incident)
 	if err != nil {
 		webhookIncidentValidationError.Inc()
@@ -424,10 +429,10 @@ func getGroupKey(data template.Data) string {
 	return fmt.Sprintf("%x", hash)
 }
 
-func applyIncidentTemplate(incident Incident, data template.Data) {
+func applyIncidentTemplate(incident Incident, data template.Data, updatableIncident Incident) {
 	for key, val := range incident {
 		var err error
-		incident[key], err = applyTemplate(key, val.(string), data)
+		incident[key], err = applyTemplate(key, val.(string), data, updatableIncident)
 		if err != nil {
 			webhookIncidentTemplateError.Inc()
 			log.Errorf("Error parsing default incident template for key:%s value:%s, error:%v", key, val.(string), err)
@@ -435,14 +440,14 @@ func applyIncidentTemplate(incident Incident, data template.Data) {
 	}
 }
 
-func applyTemplate(name string, text string, data template.Data) (string, error) {
+func applyTemplate(name string, text string, data template.Data, updatableIncident Incident) (string, error) {
 	tmpl, err := tmpltext.New(name).Parse(text)
 	if err != nil {
 		return "", err
 	}
 
 	var result bytes.Buffer
-	err = tmpl.Execute(&result, data)
+	err = tmpl.Execute(&result, TemplateData{updatableIncident, data})
 	if err != nil {
 		return "", err
 	}

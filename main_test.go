@@ -285,7 +285,8 @@ func TestWebhookHandler_InternalServerError(t *testing.T) {
 func TestApplyTemplate_emptyText(t *testing.T) {
 	data := template.Data{}
 	text := ""
-	got, err := applyTemplate("name", text, data)
+	updatableIncident := Incident{}
+	got, err := applyTemplate("name", text, data, updatableIncident)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -302,8 +303,9 @@ func TestApplyTemplate_OK(t *testing.T) {
 			"error": "my error",
 		},
 	}
+	updatableIncident := Incident{}
 	text := "Status is {{.Status}} and error is {{.CommonAnnotations.error}}"
-	got, err := applyTemplate("name", text, data)
+	got, err := applyTemplate("name", text, data, updatableIncident)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -323,7 +325,8 @@ func TestApplyIncidentTemplate_Range(t *testing.T) {
 	incident := Incident{
 		"description": "{{ range $key, $val := .CommonAnnotations}}{{ $key }}:{{ $val }} {{end}}",
 	}
-	applyIncidentTemplate(incident, data)
+	updatableIncident := Incident{}
+	applyIncidentTemplate(incident, data, updatableIncident)
 
 	got := incident["description"]
 	want := "error:a warning:b "
