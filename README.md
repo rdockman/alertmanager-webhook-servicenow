@@ -38,6 +38,9 @@ The supported incident workflow is the following:
 - Update an existing incident if it is in a state where update is allowed (same
   configuration as above in the webhook). Incident fields to be updated is also
   configurable.
+- Allow to re-use fields from the incident to be updated. If a human has changed 
+  some field of the incident, you can use `.UpdatableIncident.[field]` in your
+  string template.
 
 Note that when an incident is updated, configured data fields are updated (e.g.:
 comments), but incident state is not changed. In the future, an optional
